@@ -1,28 +1,31 @@
 ﻿
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Identity;
+
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Search_Cluster.Models;
+using System.Reflection.Emit;
 
 namespace Search_Cluster.Context
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
         {
-
         }
 
+        public DbSet<User> Users { get; set; }
         public DbSet<Cluster> Clusters { get; set; }
-        public DbSet<Url> Urls { get; set; }
+        public DbSet<Url>Urls { get; set; }
         public DbSet<CrawlingStrategy> CrawlingStrategies { get; set; }
 
-        public DbSet<UrlCrawlingStrategy>UrlCrawlingStrategies { get; set; }
+        public DbSet<UrlCrawlingStrategy> UrlCrawlingStrategies { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<UrlCrawlingStrategy>()
-                .HasKey(ucs => new { ucs.UrlId, ucs.CrawlingStrategyId });
+    .HasKey(ucs => new { ucs.UrlId, ucs.CrawlingStrategyId });
 
             modelBuilder.Entity<UrlCrawlingStrategy>()
                 .HasOne(ucs => ucs.Url)
@@ -33,12 +36,10 @@ namespace Search_Cluster.Context
                 .HasOne(ucs => ucs.CrawlingStrategy)
                 .WithMany(cs => cs.UrlCrawlingStrategies)
                 .HasForeignKey(ucs => ucs.CrawlingStrategyId);
-            modelBuilder.Entity<CrawlingStrategy>().HasData(
-                new CrawlingStrategy { CrawlingStrategyId = "pdf", CrawlingStrategyName = "pdf" },
-                new CrawlingStrategy { CrawlingStrategyId = "docx", CrawlingStrategyName = "docx" },
-                new CrawlingStrategy { CrawlingStrategyId = "html", CrawlingStrategyName = "html" },
-                new CrawlingStrategy { CrawlingStrategyId = "txt", CrawlingStrategyName = "txt" }
-);
+
+            // Customize the ASP.NET Identity model and override the defaults if needed.
+            // For example, you can rename the ASP.NET Identity table names and more.
+            // Add your customizations after calling base.OnModelCreating(builder);
         }
     }
 }
